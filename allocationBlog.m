@@ -4,11 +4,29 @@
 %
 % Example implementation of a multirotor allocation using MPT3 toolbox.
 % Includes example for octocopter with equally spaced rotors both in
-% nominal conditions and with a single failed rotor
+% nominal conditions and with a single failed rotor.
 %
+% Copyright (c) 2018 A³ by Airbus
+% 
+% Permission is hereby granted, free of charge, to any person obtaining a copy
+% of this software and associated documentation files (the "Software"), to deal
+% in the Software without restriction, including without limitation the rights
+% to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+% copies of the Software, and to permit persons to whom the Software is
+% furnished to do so, subject to the following conditions:
+% 
+% The above copyright notice and this permission notice shall be included in all
+% copies or substantial portions of the Software.
+% 
+% THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+% IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+% FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+% AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+% LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+% OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+% SOFTWARE.
 
 clear all
-close all
 clc
 
 %% Check for mpt3 installation
@@ -232,8 +250,22 @@ for i = 1:4
     end
 end
 
+% Plot projection of polytopes for nominal case into each 3D FM set.
+figure(4); clf;
+FM = {'Fz','Mx','My','Mz'};
+for i = 1:4
+    subplot(2,2,i);
+    ind = setdiff(1:4,i);
+    tmp = projection(s.xopt.Set,ind,'vrep');
+    tmp.plot('Alpha',1);
+    xlabel(FM{ind(1)})
+    ylabel(FM{ind(2)})
+    zlabel(FM{ind(3)})
+end
+title('Polytope projections for nominal case')
+
 % Plot lines showing commanded and realized Mx and My with rotor 2 failed, Fz = -m*g and Mz = 0
-figure(4); clf; hold on;
+figure(5); clf; hold on;
 for i = 1:length(MxCmd)
     for j = 1:length(MyCmd)
         plot([FMCmdXY(i,j,2),FMRetXY2(i,j,2)],[FMCmdXY(i,j,3),FMRetXY2(i,j,3)],'b')
@@ -249,7 +281,7 @@ title('FM Commanded to FM Realized as Mx and My Cmd vary with motor 2 failure, F
 % Surface plots of errors in Fz, Mx, My, Mz as a function of Mx and My
 % commands with rotor 2 failed, Fz = -m*g and Mz = 0
 FMName = {'Fz','Mx','My','Mz'};
-figure(5); clf; hold on;
+figure(6); clf; hold on;
 for i = 1:4
     subplot(2,2,i); hold on;
     surface(MxCmd, MyCmd, squeeze(FMCmdXY(:,:,i) - FMRetXY2(:,:,i))','EdgeAlpha',0,'FaceColor','interp');
@@ -272,4 +304,22 @@ for i = 1:4
         title('Mz Errors with Motor 2 failure')
     end
 end
+
+
+% Plot projection of polytopes for rotor 2 failure case into each 3D FM set.
+figure(7); clf;
+FM = {'Fz','Mx','My','Mz'};
+for i = 1:4
+    subplot(2,2,i);
+    ind = setdiff(1:4,i);
+    tmp = projection(s2.xopt.Set,ind,'vrep');
+    tmp.plot('Alpha',1);
+    xlabel(FM{ind(1)})
+    ylabel(FM{ind(2)})
+    zlabel(FM{ind(3)})
+end
+title('Polytope projection for rotor 2 out');
+
+
+
 
